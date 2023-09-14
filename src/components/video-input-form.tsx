@@ -13,7 +13,7 @@ const statusMessages = {
   converting: 'Convertendo vídeo...',
   uploading: 'Enviando vídeo...',
   generating: 'Gerando transcrição...',
-  success: 'Vídeo carregado com sucesso'
+  success: 'Sucesso'
 }
 type VideoInputFormProps = {
   onVideoUploaded: (videoId: string) => void
@@ -29,13 +29,13 @@ export function VideoInputForm(props: VideoInputFormProps) {
     if (!files) { return }
     const selectedFile = files[0]
     setVideo(selectedFile)
+    setStatus('waiting')
   }
 
   async function convertVideoToAudio(video: File) {
     console.log('Convert started.')
     const ffmpeg = await getFFmpeg()
     await ffmpeg.writeFile('input.mp4', await fetchFile(video))
-    // ffmpeg.on('log', log => console.log(log.message))
     ffmpeg.on('progress', progress => console.log('Convert progress: ' + Math.round(progress.progress)*100))
     await ffmpeg.exec(['-i', 'input.mp4', '-map', '0:a', '-b:a', '20k', '-acodec', 'libmp3lame', 'output.mp3'])
     const data = await ffmpeg.readFile('output.mp3')
@@ -103,7 +103,7 @@ export function VideoInputForm(props: VideoInputFormProps) {
         data-success={status === 'success'}
         disabled={status !== 'waiting'}
         type='submit'
-        className='w-full data-[susccess=true]:border-emerald-400'
+        className='w-full data-[success=true]:bg-emerald-900'
       >
         {status === 'waiting'
           ? (
